@@ -11,15 +11,9 @@ export default function Admin() {
   const [activeTab, setActiveTab] = useState('stats')
   const [creating, setCreating] = useState(false)
   const [createData, setCreateData] = useState({
-    email: '',
+    userId: '',
     days: 7,
-    features: {
-      AntiSpeed: true,
-      AntiNoclip: true,
-      AntiGodmode: true,
-      AntiWeapons: true,
-      AntiMenus: true
-    }
+    type: 'basic'
   })
   const [createdLicense, setCreatedLicense] = useState(null)
 
@@ -56,22 +50,15 @@ export default function Admin() {
     }
   }
 
-  const toggleFeature = (key) => {
-    setCreateData((prev) => ({
-      ...prev,
-      features: { ...prev.features, [key]: !prev.features[key] }
-    }))
-  }
-
   const submitCreate = async (e) => {
     e.preventDefault()
     setCreating(true)
     setCreatedLicense(null)
     try {
-      const response = await api.post('/admin/license/create', {
-        email: createData.email,
-        days: createData.days,
-        features: createData.features
+      const response = await api.post('/admin/licenses', {
+        userId: createData.userId,
+        type: createData.type,
+        duration: createData.days
       })
       setCreatedLicense(response.data)
       toast.success('Licence créée')
@@ -198,14 +185,18 @@ export default function Admin() {
                   <h3 className="text-lg font-semibold mb-2">Créer une licence</h3>
                   <form onSubmit={submitCreate} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
                     <div>
-                      <label className="block text-sm mb-1">Email utilisateur</label>
-                      <input
-                        type="email"
+                      <label className="block text-sm mb-1">Utilisateur</label>
+                      <select
                         className="w-full border border-white/10 bg-transparent rounded px-3 py-2"
-                        value={createData.email}
-                        onChange={(e) => setCreateData({ ...createData, email: e.target.value })}
+                        value={createData.userId}
+                        onChange={(e) => setCreateData({ ...createData, userId: e.target.value })}
                         required
-                      />
+                      >
+                        <option value="">Sélectionner…</option>
+                        {users.map(u => (
+                          <option key={u._id} value={u._id}>{u.email}</option>
+                        ))}
+                      </select>
                     </div>
                     <div>
                       <label className="block text-sm mb-1">Durée (jours)</label>
@@ -217,16 +208,16 @@ export default function Admin() {
                         onChange={(e) => setCreateData({ ...createData, days: parseInt(e.target.value || '7', 10) })}
                       />
                     </div>
-                    <div className="md:col-span-3">
-                      <label className="block text-sm mb-2">Fonctionnalités</label>
-                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                        {Object.keys(createData.features).map((k) => (
-                          <label key={k} className="flex items-center gap-2 text-sm">
-                            <input type="checkbox" checked={createData.features[k]} onChange={() => toggleFeature(k)} />
-                            <span>{k}</span>
-                          </label>
-                        ))}
-                      </div>
+                    <div>
+                      <label className="block text-sm mb-1">Type</label>
+                      <select
+                        className="w-full border border-white/10 bg-transparent rounded px-3 py-2"
+                        value={createData.type}
+                        onChange={(e) => setCreateData({ ...createData, type: e.target.value })}
+                      >
+                        <option value="basic">basic</option>
+                        <option value="pro">pro</option>
+                      </select>
                     </div>
                     <div>
                       <button
