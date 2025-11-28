@@ -29,8 +29,11 @@ export default function ServerPanel() {
   }, [licenseKey])
 
   const connectSocket = () => {
-    const newSocket = io(import.meta.env.VITE_API_URL || 'http://localhost:5000', {
-      auth: { token: localStorage.getItem('token') }
+    const apiBase = import.meta.env.VITE_API_URL || 'http://localhost:5000/api'
+    const socketBase = apiBase.replace(/\/api\/?$/, '')
+    const newSocket = io(socketBase, {
+      auth: { token: localStorage.getItem('token') },
+      path: '/socket.io'
     })
 
     newSocket.on('connect', () => {
