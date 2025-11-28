@@ -72,8 +72,7 @@ export default function ServerPanel() {
     if (!reason) return
 
     try {
-      await api.post(`/server/ban`, {
-        licenseKey,
+      await api.post(`/server/${licenseKey}/ban`, {
         playerName: player.name,
         identifiers: player.identifiers,
         reason,
@@ -91,7 +90,7 @@ export default function ServerPanel() {
     if (!reason) return
 
     try {
-      await api.post(`/server/kick`, { licenseKey, playerId, reason })
+      await api.post(`/server/${licenseKey}/kick`, { playerId, reason })
       toast.success('Joueur expulsé')
     } catch (error) {
       toast.error('Erreur lors du kick')
@@ -100,7 +99,7 @@ export default function ServerPanel() {
 
   const handleUnban = async (banId) => {
     try {
-      await api.post(`/server/unban`, { licenseKey, banId })
+      await api.delete(`/server/${licenseKey}/ban/${banId}`)
       toast.success('Ban retiré')
       fetchServerData()
     } catch (error) {
