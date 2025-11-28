@@ -371,7 +371,7 @@ export default function ServerPanel() {
                     Téléchargez le script anti-cheat et placez-le dans votre dossier resources.
                   </p>
                   <a 
-                    href={`/api/license/${license.key}/download`} 
+                    href={`${import.meta.env.VITE_API_URL}/license/${license.key}/download`} 
                     download
                     className="btn-primary inline-flex items-center"
                   >
