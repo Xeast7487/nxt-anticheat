@@ -1,7 +1,9 @@
 import axios from 'axios'
 
+// VITE_API_URL doit être la base complète de l'API (incluant /api)
+// ex: https://api.aventopro.com/api ou https://panel.aventopro.com/api
 const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_URL || 'http://localhost:5000') + '/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json'
   }
