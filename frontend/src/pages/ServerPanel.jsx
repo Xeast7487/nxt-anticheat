@@ -97,6 +97,56 @@ export default function ServerPanel() {
     }
   }
 
+  const handleFreezePlayer = async (playerId) => {
+    const duration = parseInt(prompt('Durée du freeze en secondes (0 pour indéfini):') || '0', 10)
+    try {
+      await api.post(`/server/${licenseKey}/freeze`, { playerId, duration: isNaN(duration) ? 0 : duration })
+      toast.success('Freeze envoyé')
+    } catch (error) {
+      toast.error('Erreur lors du freeze')
+    }
+  }
+
+  const handleUnfreezePlayer = async (playerId) => {
+    try {
+      await api.post(`/server/${licenseKey}/unfreeze`, { playerId })
+      toast.success('Unfreeze envoyé')
+    } catch (error) {
+      toast.error('Erreur lors de l\'unfreeze')
+    }
+  }
+
+  const handleMutePlayer = async (playerId) => {
+    const reason = prompt('Raison du mute:') || 'Muted'
+    const duration = parseInt(prompt('Durée du mute en minutes (0 pour indéfini):') || '0', 10)
+    try {
+      await api.post(`/server/${licenseKey}/mute`, { playerId, reason, duration: isNaN(duration) ? 0 : duration })
+      toast.success('Mute envoyé')
+    } catch (error) {
+      toast.error('Erreur lors du mute')
+    }
+  }
+
+  const handleUnmutePlayer = async (playerId) => {
+    try {
+      await api.post(`/server/${licenseKey}/unmute`, { playerId })
+      toast.success('Unmute envoyé')
+    } catch (error) {
+      toast.error('Erreur lors du unmute')
+    }
+  }
+
+  const handleMessagePlayer = async (playerId) => {
+    const message = prompt('Message privé au joueur:')
+    if (!message) return
+    try {
+      await api.post(`/server/${licenseKey}/message`, { playerId, message })
+      toast.success('Message envoyé')
+    } catch (error) {
+      toast.error('Erreur lors de l\'envoi du message')
+    }
+  }
+
   const handleUnban = async (banId) => {
     try {
       await api.delete(`/server/${licenseKey}/ban/${banId}`)
@@ -258,6 +308,36 @@ export default function ServerPanel() {
                             className="btn-danger text-sm py-1 px-3"
                           >
                             Ban
+                          </button>
+                          <button
+                            onClick={() => handleFreezePlayer(player.id)}
+                            className="btn-secondary text-sm py-1 px-3"
+                          >
+                            Freeze
+                          </button>
+                          <button
+                            onClick={() => handleUnfreezePlayer(player.id)}
+                            className="btn-secondary text-sm py-1 px-3"
+                          >
+                            Unfreeze
+                          </button>
+                          <button
+                            onClick={() => handleMutePlayer(player.id)}
+                            className="btn-secondary text-sm py-1 px-3"
+                          >
+                            Mute
+                          </button>
+                          <button
+                            onClick={() => handleUnmutePlayer(player.id)}
+                            className="btn-secondary text-sm py-1 px-3"
+                          >
+                            Unmute
+                          </button>
+                          <button
+                            onClick={() => handleMessagePlayer(player.id)}
+                            className="btn-secondary text-sm py-1 px-3"
+                          >
+                            Message
                           </button>
                         </div>
                       </div>
