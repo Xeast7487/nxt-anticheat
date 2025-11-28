@@ -9,6 +9,19 @@ export default function Admin() {
   const [users, setUsers] = useState([])
   const [licenses, setLicenses] = useState([])
   const [activeTab, setActiveTab] = useState('stats')
+  const [creating, setCreating] = useState(false)
+  const [createData, setCreateData] = useState({
+    email: '',
+    days: 7,
+    features: {
+      AntiSpeed: true,
+      AntiNoclip: true,
+      AntiGodmode: true,
+      AntiWeapons: true,
+      AntiMenus: true
+    }
+  })
+  const [createdLicense, setCreatedLicense] = useState(null)
 
   useEffect(() => {
     fetchStats()
@@ -40,6 +53,33 @@ export default function Admin() {
       setLicenses(response.data.licenses)
     } catch (error) {
       toast.error('Erreur chargement licences')
+    }
+  }
+
+  const toggleFeature = (key) => {
+    setCreateData((prev) => ({
+      ...prev,
+      features: { ...prev.features, [key]: !prev.features[key] }
+    }))
+  }
+
+  const submitCreate = async (e) => {
+    e.preventDefault()
+    setCreating(true)
+    setCreatedLicense(null)
+    try {
+      const response = await api.post('/admin/license/create', {
+        email: createData.email,
+        days: createData.days,
+        features: createData.features
+      })
+      setCreatedLicense(response.data)
+      toast.success('Licence créée')
+      fetchLicenses()
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Erreur création licence')
+    } finally {
+      setCreating(false)
     }
   }
 
@@ -154,6 +194,58 @@ export default function Admin() {
 
             {activeTab === 'licenses' && (
               <div className="overflow-x-auto">
+                <div className="mb-4">
+                  <h3 className="text-lg font-semibold mb-2">Créer une licence</h3>
+                  <form onSubmit={submitCreate} className="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                    <div>
+                      <label className="block text-sm mb-1">Email utilisateur</label>
+                      <input
+                        type="email"
+                        className="w-full border border-white/10 bg-transparent rounded px-3 py-2"
+                        value={createData.email}
+                        onChange={(e) => setCreateData({ ...createData, email: e.target.value })}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm mb-1">Durée (jours)</label>
+                      <input
+                        type="number"
+                        min={1}
+                        className="w-full border border-white/10 bg-transparent rounded px-3 py-2"
+                        value={createData.days}
+                        onChange={(e) => setCreateData({ ...createData, days: parseInt(e.target.value || '7', 10) })}
+                      />
+                    </div>
+                    <div className="md:col-span-3">
+                      <label className="block text-sm mb-2">Fonctionnalités</label>
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                        {Object.keys(createData.features).map((k) => (
+                          <label key={k} className="flex items-center gap-2 text-sm">
+                            <input type="checkbox" checked={createData.features[k]} onChange={() => toggleFeature(k)} />
+                            <span>{k}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <button
+                        type="submit"
+                        disabled={creating}
+                        className="btn-primary px-4 py-2"
+                      >
+                        {creating ? 'Création…' : 'Créer la licence'}
+                      </button>
+                    </div>
+                  </form>
+                  {createdLicense && (
+                    <div className="mt-3 p-3 bg-green-900/20 border border-green-700 rounded">
+                      <div className="font-medium">Licence créée</div>
+                      <div>Clé: <code>{createdLicense.key}</code></div>
+                      <div>Expire le: {new Date(createdLicense.expiresAt).toLocaleString('fr-FR')}</div>
+                    </div>
+                  )}
+                </div>
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-white/10">
